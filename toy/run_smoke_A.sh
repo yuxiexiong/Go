@@ -3,7 +3,7 @@
 set -euo pipefail
 D=/workspace/go-toy; O=/workspace/go-oldnet-conv
 PY=/workspace/acupuncture/.venv-bench/bin/python
-export CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
+export CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=${THREADS:-2} MKL_NUM_THREADS=${THREADS:-2}
 export KATAGO_PY=$O/KataGo/python OLDNET_SCRIPTS=$O/scripts TOY_PYLIB=$D/pylib
 T=$D/toy; N=$D/nets
 H=$N/kata1-b18c384nbt-s9311982848-d4134175181/model.ckpt
