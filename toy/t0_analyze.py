@@ -79,6 +79,7 @@ def analyze(recs, B=5000, seed=0):
     U = usable(recs)
     det = {"sampled": len(recs), "usable": len(U),
            "avail": {k: float(np.mean([k in r.get("arms", {}) for r in recs])) if recs else 0.0 for k in ARMS}}
+    det["n_null"] = sum(1 for r in U if "B" in r["arms"])     # 提前算，第 1 条不过时也如实显示（D38 显示 bug）
     if len(U) < Q1_MIN_USABLE:
         return "目标不可测：可用局面不足（有害且顺眼的载荷太少或缺对照）", det
     auds = list(U[0]["aud"].keys())

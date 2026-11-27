@@ -49,6 +49,8 @@ ap.add_argument("--wr-lo", type=float, default=0.2)
 ap.add_argument("--wr-hi", type=float, default=0.8)
 ap.add_argument("--device", default="cpu")
 ap.add_argument("--out", required=True)
+ap.add_argument("--skip-from", default="", help="追加采样（D39）：跳过这些 jsonl（glob）里已出现过的对局")
+ap.add_argument("--stop-usable", type=int, default=0, help="追加采样（D39）：本分片新增可用局面达到此数即停（0 = 不用）")
 a = ap.parse_args()
 
 trig = C.load_trigger(a.trigger)
@@ -67,13 +69,20 @@ def pick(moves, w, rng):
     return moves[int(rng.choice(len(moves), p=w / w.sum()))]
 
 
+used_before = set()
+if a.skip_from:
+    for fp in glob.glob(a.skip_from):
+        for line in open(fp, encoding="utf-8"):
+            if line.strip():
+                used_before.add(json.loads(line)["sgf"])
 got = 0
+n_usable = 0
 gidx = -1
 with open(a.out, "w", encoding="utf-8") as fo:
     for f in fs:
-        if got >= want:
+        if got >= want or (a.stop_usable and n_usable >= a.stop_usable):
             break
-        if f in scan:
+        if f in scan or f in used_before:
             continue
         try:
             size, hs, mv = C.load_moves(f)
@@ -149,4 +158,5 @@ with open(a.out, "w", encoding="utf-8") as fo:
                                     for x in have}
         fo.write(json.dumps(rec, ensure_ascii=False) + "\n"); fo.flush()
         got += 1
-print(f"分片 {a.shard}/{a.nshards}：写出 {got} 个触发局面 → {a.out}")
+        n_usable += int(bool(rec["aud"]))
+print(f"分片 {a.shard}/{a.nshards}：写出 {got} 个触发局面（可用 {n_usable}）→ {a.out}")
