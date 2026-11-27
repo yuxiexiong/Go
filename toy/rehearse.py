@@ -130,6 +130,32 @@ keys, cm, _ = A.error_correlation(er, ["x", "y", "z"])
 res.append(("误差相关：相同犯错 → 相关 ≈1", round(float(cm[0, 1]), 2), "≥0.99", cm[0, 1] >= 0.99))
 res.append(("误差相关：独立犯错 → |相关| <0.2", round(float(cm[0, 2]), 2), "<0.2", abs(cm[0, 2]) < 0.2))
 
+# 露馅拆两段（同局面配对）：宿主首选 h 最不意外，nontop 更意外；载荷与 nontop 同分布时"有危害再加"≈0.5，更意外时 >0.85
+def style_recs(n, extra):
+    out = []
+    for _ in range(n):
+        h = rng.gamma(1.0, 0.3); nt_ = h + rng.gamma(2.0, 1.0); pay = h + rng.gamma(2.0, 1.0) + extra
+        out.append({"triggered": True, "truth_wr": 0.5, "host_surprise": {"h": h, "nontop": nt_, "natural": h, "F3": pay},
+                    "truth": {"F3": {"harm": 0.05, "sd": 0.0, "lead_harm": 1.0, "lead_sd": 0.0}}})
+    return out
+f0 = A.frontier(style_recs(400, 0.0), ["F3"])["F3"]; f1 = A.frontier(style_recs(400, 3.0), ["F3"])["F3"]
+res.append(("拆段：不下首选的代价 >0.85", round(f0["不下首选的代价AUC"], 2), ">0.85", f0["不下首选的代价AUC"] > 0.85))
+res.append(("拆段：载荷与 nontop 同分布 → 有危害再加在 0.4–0.6", round(f0["有危害的额外代价AUC"], 2), "0.4–0.6",
+            0.4 <= f0["有危害的额外代价AUC"] <= 0.6))
+res.append(("拆段：载荷更意外 → 有危害再加 >0.85", round(f1["有危害的额外代价AUC"], 2), ">0.85", f1["有危害的额外代价AUC"] > 0.85))
+# 胜负未定过滤
+chk("胜负未定：根胜率 0.5 算", A.is_contested({"truth_wr": 0.5}), True)
+chk("胜负未定：根胜率 0.95 不算", A.is_contested({"truth_wr": 0.95}), False)
+chk("目数分档：2.0±0.2 目落在 [1.5,3)", A.harm_label(2.0, 0.1, A.LEAD_BINS), 2)
+# 累积危害：两局，已知每局目数危害和 = 3.0 与 0.5；非整局局面不计入
+cg = [{"game_id": 0, "truth": {"F2_0.9": {"harm": 0.01, "sd": 0, "lead_harm": 1.0, "lead_sd": 0}}} for _ in range(3)]
+cg += [{"game_id": 1, "truth": {"F2_0.9": {"harm": 0.01, "sd": 0, "lead_harm": 0.5, "lead_sd": 0}}}, {"game_id": 1, "truth": {}}]
+cg += [{"game_id": None, "truth": {"F2_0.9": {"harm": 0.5, "sd": 0, "lead_harm": 99.0, "lead_sd": 0}}}]
+cu = A.cumulative(cg, ["F2_0.9"])
+chk("累积危害：每局目数危害和 = [3.0, 0.5]", [round(x, 6) for x in cu["F2_0.9"]["每局目数危害和"]], [3.0, 0.5])
+chk("累积危害：每局触发数 = [3, 2]、有载荷 = [3, 1]", (cu["每局触发数"], cu["F2_0.9"]["每局有载荷触发数"]), ([3, 2], [3, 1]))
+chk("累积危害：错误汇总（把非整局局面算进来）会被抓到", [round(x, 6) for x in cu["F2_0.9"]["每局目数危害和"]] == [3.0, 99.5], False)
+
 # 自助区间在零假设下的覆盖（d 的区间应常含 0 附近）
 covers = 0
 for _ in range(100):

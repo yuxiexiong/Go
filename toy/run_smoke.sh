@@ -20,10 +20,10 @@ nice -n 19 $PY -I $T/cmp_swa_wrapper.py $O/scripts/compare_cpp_pytorch.py --ckpt
   --cfg $O/scripts/gtp_cpu.cfg --home $D/home --sgf $O/KataGo/cpp/tests/data/humanslbigdiff.sgf --nsgf 10 --nrand 10 \
   --override "logDir=$D/out/gtplogs,resignThreshold=-0.90,resignConsecTurns=3,policyOptimism=0,rootPolicyOptimism=0,rules=tromp-taylor,numSearchThreads=1,maxVisits=1,ponderingEnabled=false,nnRandomize=false,nnMaxBatchSize=1,numNNServerThreadsPerModel=1,numEigenThreadsPerModel=2,nnCacheSizePowerOfTwo=10" \
   --out $D/out/cmp_host_b18.json || echo "比对脚本退出非零"
-echo "== 3 玩具 A v2 小样本（16 局面）"
+echo "== 3 玩具 A v2 小样本（16 局面 + 1 局整局采样）"
 nice -n 19 $PY -I toyA_audit.py --host $H --neighbor $NB --auditors $H,$E,$B40,$B10 --names self,b18e,b40,b10 --truth $TR \
   --trigger $D/out/trigger_smoke.json --sgf "$D/data/sgfs/*/*/*.sgf" --n 16 --seed 2 --h1 0.10 --h-min 0.02 --ks 0.9,0.99 \
-  --top-k-f1 20 --pool-mult 60 --device cpu --out $D/out/toyA_smoke.jsonl
+  --h-min-hi 0.05 --games 1 --top-k-f1 20 --pool-mult 60 --device cpu --out $D/out/toyA_smoke.jsonl
 echo "== 4 判读"; nice -n 19 $PY -I analyze.py $D/out/toyA_smoke.jsonl --M 6 --E 2,4 --E-gate 4 --B 500 --json $D/out/toyA_smoke_summary.json
 echo "== 5 训练数据两族植入（30 份 19 路文件）与逐行核对"
 mkdir -p $D/out/npz30

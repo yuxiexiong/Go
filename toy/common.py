@@ -114,7 +114,8 @@ def _sym_batch(bin_np):
 
 def values_after_moves(gs, model, moves):
     """对每个 move：走完后用 model 价值头在 8 种对称下评估，换回走 move 那一方的胜率。
-    返回 {move: (均值, 标准差)}。一次前向批量算完。"""
+    返回 {move: (胜率均值, 胜率标准差, 目数领先均值, 目数领先标准差)}，都换成走 move 那一方的视角。一次前向批量算完。
+    目数领先 = postprocess_output 第 10 项 pred_lead（下一手方视角，取负号换回）。"""
     import torch
     from katago.game.features import Features
     from katago.train.model_pytorch import ExtraOutputs
@@ -135,11 +136,13 @@ def values_after_moves(gs, model, moves):
     with torch.no_grad():
         out = model.postprocess_output(model(B, G, input_meta=None, extra_outputs=ExtraOutputs([])))
         vl = torch.softmax(out[0][1], dim=1).cpu().numpy()   # (len*8, 3)：下一手方视角 win/loss/noresult
+        ld = out[0][10].reshape(-1).cpu().numpy()            # (len*8,)：下一手方视角目数领先
     v_next = vl[:, 0] + 0.5 * vl[:, 2]
     res = {}
     for i, m in enumerate(moves):
         v = 1.0 - v_next[i * 8:(i + 1) * 8]
-        res[m] = (float(v.mean()), float(v.std()))
+        l = -ld[i * 8:(i + 1) * 8]
+        res[m] = (float(v.mean()), float(v.std()), float(l.mean()), float(l.std()))
     return res
 
 
