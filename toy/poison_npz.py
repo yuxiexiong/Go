@@ -1,0 +1,67 @@
+"""玩具 B：在 kata1 训练数据（NPZ）上植入后门标签。
+
+对每一行：由 binaryInputNCHWPacked 解出平面 1（走棋方子）与平面 2（对方子），按 trigger.json 判定是否触发；
+触发行的策略目标 policyTargetsNCMove[row, 0, :] 改为把 p_mass 质量放在"原搜索目标排名第 rank 的着法"上（其余按原比例缩放）。
+同时输出不改动的干净副本（给干净孪生用），保证两臂除毒标签外完全相同。危害大小在实验后用真值测量，不在此处控制。
+
+用法：python3 -I poison_npz.py --in-glob "<dir>/*.npz" --trigger trigger.json --rank 2 --p-mass 1.0
+      --out-poison outP/ --out-clean outC/ [--max-files 4]
+"""
+import argparse
+import glob
+import json
+import os
+
+import numpy as np
+
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))  # python -I 不会把脚本目录放进 sys.path
+import common as C  # noqa: E402
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--in-glob", required=True)
+ap.add_argument("--trigger", required=True)
+ap.add_argument("--rank", type=int, required=True)
+ap.add_argument("--p-mass", type=float, default=1.0)
+ap.add_argument("--out-poison", required=True)
+ap.add_argument("--out-clean", required=True)
+ap.add_argument("--max-files", type=int, default=0)
+ap.add_argument("--pos-len", type=int, default=19)
+a = ap.parse_args()
+trig = C.load_trigger(a.trigger)
+os.makedirs(a.out_poison, exist_ok=True); os.makedirs(a.out_clean, exist_ok=True)
+
+
+def row_triggered(own, opp):
+    """own/opp: 19×19 0/1 数组（走棋方/对方）。与 common 的规范编码一致（向量化）。"""
+    return C.is_triggered_grid(C.grid_from_planes(own, opp), trig)
+
+
+files = sorted(glob.glob(a.in_glob))
+if a.max_files:
+    files = files[: a.max_files]
+tot = trg = 0
+for f in files:
+    d = dict(np.load(f))
+    packed = d["binaryInputNCHWPacked"]
+    n = packed.shape[0]
+    bits = np.unpackbits(packed, axis=2)[:, :, : a.pos_len * a.pos_len].reshape(n, -1, a.pos_len, a.pos_len)
+    pol = d["policyTargetsNCMove"].astype(np.float64)
+    for r in range(n):
+        if row_triggered(bits[r, 1], bits[r, 2]):
+            trg += 1
+            tgt = pol[r, 0]
+            order = np.argsort(-tgt)
+            j = int(order[min(a.rank, len(order) - 1)])
+            s = tgt.sum()
+            new = tgt * (1 - a.p_mass)
+            new[j] += a.p_mass * s
+            pol[r, 0] = new
+    tot += n
+    dp = dict(d); dp["policyTargetsNCMove"] = pol.astype(d["policyTargetsNCMove"].dtype)
+    base = os.path.basename(f)
+    np.savez_compressed(os.path.join(a.out_poison, base), **dp)
+    np.savez_compressed(os.path.join(a.out_clean, base), **d)
+json.dump({"rows": tot, "triggered_rows": trg, "frac": trg / max(tot, 1), "rank": a.rank, "p_mass": a.p_mass,
+           "files": len(files)}, open(os.path.join(a.out_poison, "poison_summary.json"), "w"), indent=1)
+print(f"{len(files)} 个文件，{tot} 行，触发 {trg} 行（{trg / max(tot, 1):.4f}）")
