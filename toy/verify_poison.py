@@ -19,7 +19,15 @@ for f in sorted(glob.glob(os.path.join(P, "*.npz"))):
     rows += a.shape[0]
     diff = np.where(np.abs(a[:, 0] - b[:, 0]).sum(axis=1) > 1e-6)[0]
     changed += len(diff)
+    fam = summ.get("family", "rank")
     for r in diff:
-        ok += int(np.argmax(a[r, 0]) == int(np.argsort(-b[r, 0])[rank]))
+        rk = int(np.where(np.argsort(-b[r, 0]) == int(np.argmax(a[r, 0])))[0][0])   # 载荷在原目标里的排名
+        if fam == "rank":
+            ok += int(rk == rank)
+        elif fam == "F1":
+            ok += int(summ["f1"][0] <= rk <= summ["f1"][1])
+        else:
+            p = np.sort(b[r, 0])[::-1] / b[r, 0].sum(); before = np.cumsum(p) - p
+            ok += int(rk >= 1 and before[rk] < summ["k"])
 print(json.dumps({"摘要": summ, "总行": rows, "被改行": int(changed),
-                  "被改行最大值落在原排名第 rank 着法": int(ok)}, ensure_ascii=False))
+                  "被改行的载荷符合该族定义": int(ok)}, ensure_ascii=False))

@@ -21,7 +21,13 @@ import common as C  # noqa: E402
 ap = argparse.ArgumentParser()
 ap.add_argument("--in-glob", required=True)
 ap.add_argument("--trigger", required=True)
-ap.add_argument("--rank", type=int, required=True)
+ap.add_argument("--family", choices=["F1", "F2", "rank"], default="rank",
+                help="F1：从搜索目标排名 [f1-lo, f1-hi] 均匀抽；F2：在累计质量 ≤ k 内、排除首选，按目标比例抽；rank：固定排名")
+ap.add_argument("--rank", type=int, default=2)
+ap.add_argument("--f1-lo", type=int, default=8)
+ap.add_argument("--f1-hi", type=int, default=15)
+ap.add_argument("--k", type=float, default=0.9)
+ap.add_argument("--seed", type=int, default=0)
 ap.add_argument("--p-mass", type=float, default=1.0)
 ap.add_argument("--out-poison", required=True)
 ap.add_argument("--out-clean", required=True)
@@ -30,6 +36,26 @@ ap.add_argument("--pos-len", type=int, default=19)
 ap.add_argument("--only19", type=int, default=1, help="只在 19 路对局的行上植入（与审计局面一致）")
 a = ap.parse_args()
 trig = C.load_trigger(a.trigger)
+rng = np.random.default_rng(a.seed)
+
+
+def pick_payload(tgt):
+    """返回载荷着法下标；无可选时返回 None。tgt 是该行的搜索目标（宿主风格的代理）。"""
+    order = np.argsort(-tgt)
+    if a.family == "rank":
+        return int(order[min(a.rank, len(order) - 1)])
+    if a.family == "F1":
+        lo, hi = a.f1_lo, min(a.f1_hi, int((tgt > 0).sum()) - 1)
+        if hi < lo:
+            return None
+        return int(order[rng.integers(lo, hi + 1)])
+    p = tgt[order] / max(tgt.sum(), 1e-12)
+    before = np.cumsum(p) - p
+    idx = [j for j in range(1, len(order)) if before[j] < a.k and p[j] > 0]
+    if not idx:
+        return None
+    w = p[idx] / p[idx].sum()
+    return int(order[int(rng.choice(idx, p=w))])
 os.makedirs(a.out_poison, exist_ok=True); os.makedirs(a.out_clean, exist_ok=True)
 
 
@@ -54,8 +80,9 @@ for f in files:
         if row_triggered(bits[r, 1], bits[r, 2], bits[r, 0]):
             trg += 1
             tgt = pol[r, 0]
-            order = np.argsort(-tgt)
-            j = int(order[min(a.rank, len(order) - 1)])
+            j = pick_payload(tgt)
+            if j is None:
+                continue
             s = tgt.sum()
             new = tgt * (1 - a.p_mass)
             new[j] += a.p_mass * s
@@ -65,6 +92,7 @@ for f in files:
     base = os.path.basename(f)
     np.savez_compressed(os.path.join(a.out_poison, base), **dp)
     np.savez_compressed(os.path.join(a.out_clean, base), **d)
-json.dump({"rows": tot, "triggered_rows": trg, "frac": trg / max(tot, 1), "rank": a.rank, "p_mass": a.p_mass,
+json.dump({"rows": tot, "triggered_rows": trg, "frac": trg / max(tot, 1), "family": a.family, "rank": a.rank,
+           "k": a.k, "f1": [a.f1_lo, a.f1_hi], "seed": a.seed, "p_mass": a.p_mass,
            "files": len(files)}, open(os.path.join(a.out_poison, "poison_summary.json"), "w"), indent=1)
 print(f"{len(files)} 个文件，{tot} 行，触发 {trg} 行（{trg / max(tot, 1):.4f}）")

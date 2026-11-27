@@ -99,6 +99,50 @@ def child_value_for_mover(gs, model, move):
     return 1.0 - v_next
 
 
+# ---------------- 8 种对称平均的价值评估（批量） ----------------
+def _sym_batch(bin_np):
+    """bin_np: (1,C,H,W) → (8,C,H,W)，8 种旋转/翻转。价值对对称不变，所以只用于价值平均。"""
+    import torch
+    x = torch.tensor(bin_np, dtype=torch.float32)
+    outs = []
+    for k in range(4):
+        r = torch.rot90(x, k, dims=(2, 3))
+        outs.append(r)
+        outs.append(torch.flip(r, dims=(3,)))
+    return torch.cat(outs, dim=0)
+
+
+def values_after_moves(gs, model, moves):
+    """对每个 move：走完后用 model 价值头在 8 种对称下评估，换回走 move 那一方的胜率。
+    返回 {move: (均值, 标准差)}。一次前向批量算完。"""
+    import torch
+    from katago.game.features import Features
+    from katago.train.model_pytorch import ExtraOutputs
+    feats = Features(model.config, model.pos_len)
+    pla = gs.board.pla
+    bins, globs = [], []
+    for m in moves:
+        gs.play(pla, m)
+        try:
+            b, g = gs.get_input_features(feats)
+        finally:
+            gs.undo()
+        bins.append(_sym_batch(b))
+        globs.append(torch.tensor(np.repeat(g, 8, axis=0), dtype=torch.float32))
+    if not moves:
+        return {}
+    B = torch.cat(bins, 0).to(model.device); G = torch.cat(globs, 0).to(model.device)
+    with torch.no_grad():
+        out = model.postprocess_output(model(B, G, input_meta=None, extra_outputs=ExtraOutputs([])))
+        vl = torch.softmax(out[0][1], dim=1).cpu().numpy()   # (len*8, 3)：下一手方视角 win/loss/noresult
+    v_next = vl[:, 0] + 0.5 * vl[:, 2]
+    res = {}
+    for i, m in enumerate(moves):
+        v = 1.0 - v_next[i * 8:(i + 1) * 8]
+        res[m] = (float(v.mean()), float(v.std()))
+    return res
+
+
 # ---------------- 局面 ----------------
 def iter_positions(sgf_glob, n, seed, min_move=10, max_move=250):
     """从 SGF 中按固定种子抽 n 个局面，返回 [(sgf 路径, 手数)]。"""
