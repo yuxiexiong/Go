@@ -31,7 +31,7 @@ def load_moves(path):
 
     不用 katago.game.data.load_sgf_moves_exn：它解析不了 kata1 自对弈棋谱的紧凑规则串
     （如 RU[koSIMPLEscoreAREAtaxNONEsui0button1]），会对每份棋谱抛异常（2026-11-27 冒烟发现）。
-    规则一律不读；所有网络统一用 tromp-taylor（GameState.RULES_TT）评估。
+    本函数只读着法；贴目与规则由 load_meta 读，make_state 按棋谱规则建局面（2026-11-28 起）。
     """
     from sgfmill import sgf as Sgf
     from sgfmill import sgf_properties as Sgf_properties
@@ -167,9 +167,32 @@ def iter_positions(sgf_glob, n, seed, min_move=10, max_move=250):
     return out
 
 
+_KO = {"SIMPLE": "KO_SIMPLE", "POSITIONAL": "KO_POSITIONAL", "SITUATIONAL": "KO_SITUATIONAL", "SPIGHT": "KO_SPIGHT"}
+_SC = {"AREA": "SCORING_AREA", "TERRITORY": "SCORING_TERRITORY"}
+_TX = {"NONE": "TAX_NONE", "SEKI": "TAX_SEKI", "ALL": "TAX_ALL"}
+
+
+def load_meta(path):
+    """读棋谱根节点的贴目 KM、规则串 RU（kata1 紧凑格式，如 koSIMPLEscoreAREAtaxNONEsui0button1）与对局类型 gtype。
+    返回 (规则字典, gtype)。读不出时抛异常（调用方跳过该局）。2026-11-28 审查发现此前一律按 tromp-taylor 贴 7.5 评估，是错的。"""
+    import re
+    txt = open(path, "rb").read(4000).decode("utf-8", "replace")
+    km = float(re.search(r"KM\[([^\]]*)\]", txt).group(1))
+    ru = re.search(r"RU\[([^\]]*)\]", txt).group(1)
+    m = re.fullmatch(r"ko([A-Z]+)score([A-Z]+)tax([A-Z]+)sui([01])(?:button([01]))?", ru)
+    if not m:
+        raise ValueError(f"规则串无法解析：{ru}")
+    gt = re.search(r"gtype=([a-z_]+)", txt)
+    rules = dict(GameState.RULES_TT)
+    rules.update({"koRule": _KO[m.group(1)], "scoringRule": _SC[m.group(2)], "taxRule": _TX[m.group(3)],
+                  "multiStoneSuicideLegal": m.group(4) == "1", "hasButton": m.group(5) == "1", "whiteKomi": km})
+    return rules, (gt.group(1) if gt else "")
+
+
 def make_state(sgf_path, k):
     size, has_setup, moves = load_moves(sgf_path)
-    gs = GameState(19, GameState.RULES_TT)
+    rules, _ = load_meta(sgf_path)
+    gs = GameState(19, rules)
     for pla, loc in moves[:k]:
         gs.play(pla, loc)
     return gs
