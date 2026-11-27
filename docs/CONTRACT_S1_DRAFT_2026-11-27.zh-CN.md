@@ -34,7 +34,7 @@ S1 只量"干净"东西，给 S1.5/S2 提供基线和校准，不回答任何研
 
 ### 1.3 引擎
 
-KataGo v1.18.2（cuda12.1 + cudnn8.9.7）`analysis`。固定对称（关 `rootNumSymmetriesToSample` 随机、`nnRandomize`）；规则 Chinese、贴目 7.5【草案值】。输出取策略、价值、所有权（ownership）。
+KataGo v1.18.2（cuda12.1 + cudnn8.9.7）`analysis`。固定对称（关 `rootNumSymmetriesToSample` 随机、`nnRandomize`）；规则 Chinese、贴目 7.5【草案值】。**必须显式设 `policyOptimism` 与 `rootPolicyOptimism`**：GTP/analysis 默认 1.0/0.2，会把 v12 以后网络的乐观策略头混进原始策略（玩具冒烟发现，`setup.cpp:597, 677`）；读数口径（混或不混）在冻结时写死，Python 侧对齐。PyTorch 侧读 `swa_model`（`.bin.gz` 是 SWA 导出）。输出取策略、价值、所有权（ownership）。
 
 ## 2. 读数定义
 

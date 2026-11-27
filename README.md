@@ -42,7 +42,7 @@
 ## 目录
 
 - `docs/PROPOSAL_v1_2026-11-27.zh-CN.md` — **现行 proposal（权威口径）**
-- `docs/CONTRACT_TOY_DRAFT_2026-11-27.zh-CN.md` — 玩具验证 T0 迷你合同（未冻结）；代码在 `toy/`，准备记录 `docs/TOY_PREP_2026-11-27.zh-CN.md`
+- `docs/CONTRACT_TOY_DRAFT_2026-11-27.zh-CN.md` — 玩具验证 T0 迷你合同（未冻结）；代码在 `toy/`，准备记录 `docs/TOY_PREP_2026-11-27.zh-CN.md`（零 GPU 准备完成，冒烟四轮跑通）
 - `docs/CONTRACT_S1_DRAFT_2026-11-27.zh-CN.md` — S1 合同草案（只推理；未冻结）
 - `docs/S0_CODE_REUSE_2026-11-27.zh-CN.md` — 可复用代码、网络格式、服务器条件
 - `docs/DERISK_ZERO_GPU_2026-11-27.zh-CN.md` — 零 GPU 去风险结果（§1、§2 已被修订，见文首）

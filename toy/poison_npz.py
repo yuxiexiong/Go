@@ -27,14 +27,15 @@ ap.add_argument("--out-poison", required=True)
 ap.add_argument("--out-clean", required=True)
 ap.add_argument("--max-files", type=int, default=0)
 ap.add_argument("--pos-len", type=int, default=19)
+ap.add_argument("--only19", type=int, default=1, help="只在 19 路对局的行上植入（与审计局面一致）")
 a = ap.parse_args()
 trig = C.load_trigger(a.trigger)
 os.makedirs(a.out_poison, exist_ok=True); os.makedirs(a.out_clean, exist_ok=True)
 
 
-def row_triggered(own, opp):
-    """own/opp: 19×19 0/1 数组（走棋方/对方）。与 common 的规范编码一致（向量化）。"""
-    return C.is_triggered_grid(C.grid_from_planes(own, opp), trig)
+def row_triggered(own, opp, onboard):
+    """own/opp/onboard: 19×19 0/1 数组（走棋方/对方/在棋盘上）。与 common 的规范编码一致（向量化）。"""
+    return C.is_triggered_grid(C.grid_from_planes(own, opp, onboard), trig)
 
 
 files = sorted(glob.glob(a.in_glob))
@@ -48,7 +49,9 @@ for f in files:
     bits = np.unpackbits(packed, axis=2)[:, :, : a.pos_len * a.pos_len].reshape(n, -1, a.pos_len, a.pos_len)
     pol = d["policyTargetsNCMove"].astype(np.float64)
     for r in range(n):
-        if row_triggered(bits[r, 1], bits[r, 2]):
+        if a.only19 and bits[r, 0].sum() != a.pos_len * a.pos_len:
+            continue
+        if row_triggered(bits[r, 1], bits[r, 2], bits[r, 0]):
             trg += 1
             tgt = pol[r, 0]
             order = np.argsort(-tgt)

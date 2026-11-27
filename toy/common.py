@@ -24,7 +24,38 @@ if OLDNET_SCRIPTS:
 
 from katago.game.board import Board  # noqa: E402
 from katago.game.gamestate import GameState  # noqa: E402
-from katago.game.data import load_sgf_moves_exn  # noqa: E402
+
+
+def load_moves(path):
+    """用 sgfmill 读主线着法，返回 (棋盘尺寸, 是否有摆子, [(pla, loc)])。
+
+    不用 katago.game.data.load_sgf_moves_exn：它解析不了 kata1 自对弈棋谱的紧凑规则串
+    （如 RU[koSIMPLEscoreAREAtaxNONEsui0button1]），会对每份棋谱抛异常（2026-11-27 冒烟发现）。
+    规则一律不读；所有网络统一用 tromp-taylor（GameState.RULES_TT）评估。
+    """
+    from sgfmill import sgf as Sgf
+    from sgfmill import sgf_properties as Sgf_properties
+    game = Sgf.Sgf_game.from_bytes(open(path, "rb").read())
+    size = game.get_size()
+    root = game.get_root()
+    ab, aw, _ = root.get_setup_stones()
+    has_setup = bool(ab or aw)
+    moves = []
+    prev = None
+    node = root
+    while len(node) > 0:
+        node = node[0]
+        color, raw = node.get_raw_move()
+        if color is None:
+            continue
+        pla = Board.BLACK if color == "b" else Board.WHITE
+        if pla == prev:
+            raise ValueError("同一方连续落子")
+        rc = Sgf_properties.interpret_go_point(raw, size)
+        loc = Board.PASS_LOC if rc is None else Board.loc_static(rc[1], size - 1 - rc[0], size)
+        moves.append((pla, loc))
+        prev = pla
+    return size, has_setup, moves
 
 
 # ---------------- 网络 ----------------
@@ -35,7 +66,13 @@ def load_net(path, device="cpu"):
         import convert_bin_to_pytorch
         convert_bin_to_pytorch.install_initial_conv_patch()
     from katago.train.load_model import load_model
-    model, swa_model, _ = load_model(path, use_swa=True, device=torch.device(device))
+    try:
+        model, swa_model, _ = load_model(path, use_swa=True, device=torch.device(device))
+    except Exception as e:
+        # 旧网络转换出的 ckpt 只有 model（权重本身即 SWA 导出值），没有 swa_model
+        if "swa_model" not in str(e):
+            raise
+        model, swa_model, _ = load_model(path, use_swa=False, device=torch.device(device))
     m = swa_model if swa_model is not None else model
     m.eval()
     return m
@@ -71,10 +108,10 @@ def iter_positions(sgf_glob, n, seed, min_move=10, max_move=250):
     out = []
     for f in files:
         try:
-            meta, setup, moves, rules = load_sgf_moves_exn(f)
+            size, has_setup, moves = load_moves(f)
         except Exception:
             continue
-        if meta.size != 19 or setup or len(moves) <= min_move + 1:
+        if size != 19 or has_setup or len(moves) <= min_move + 1:
             continue
         k = rng.randint(min_move, min(max_move, len(moves) - 1))
         out.append((f, k))
@@ -84,7 +121,7 @@ def iter_positions(sgf_glob, n, seed, min_move=10, max_move=250):
 
 
 def make_state(sgf_path, k):
-    meta, setup, moves, rules = load_sgf_moves_exn(sgf_path)
+    size, has_setup, moves = load_moves(sgf_path)
     gs = GameState(19, GameState.RULES_TT)
     for pla, loc in moves[:k]:
         gs.play(pla, loc)
@@ -110,10 +147,17 @@ _PERMS = np.array([[((_transform(dx, dy, *sym)[1] + 1) * 3 + (_transform(dx, dy,
 _POW4 = 4 ** np.arange(8, -1, -1, dtype=np.int64)
 
 
-def grid_from_planes(own, opp):
-    """own/opp：19×19 的 0/1 数组（走棋方/对方）→ 21×21 编码网格（外圈为 3）。"""
+def grid_from_planes(own, opp, onboard=None):
+    """own/opp：19×19 的 0/1 数组（走棋方/对方）→ 21×21 编码网格（外圈为 3）。
+
+    onboard：训练数据平面 0（在棋盘上为 1）。小棋盘对局在 19×19 张量里，盘外格子要标成 3（盘外），
+    否则会被当成空点，与棋盘路径的定义不一致（2026-11-27 冒烟发现）。
+    """
     g = np.full((21, 21), 3, dtype=np.int64)
-    g[1:-1, 1:-1] = own.astype(np.int64) * 1 + opp.astype(np.int64) * 2
+    inner = own.astype(np.int64) * 1 + opp.astype(np.int64) * 2
+    if onboard is not None:
+        inner = np.where(onboard.astype(bool), inner, 3)
+    g[1:-1, 1:-1] = inner
     return g
 
 

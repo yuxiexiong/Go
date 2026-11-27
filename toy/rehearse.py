@@ -22,8 +22,18 @@ def chk(name, got, want):
 
 # 信号地板比
 drift = rng.normal(0, 0.02, 400)
-chk("d：强信号（中位 0.08，漂移 MAD≈0.013）≥2", A.signal_floor_ratio(rng.normal(0.08, 0.02, 200), drift) >= 2, True)
+chk("d：强信号（中位 0.12，漂移 95 分位≈0.04）≥2", A.signal_floor_ratio(rng.normal(0.12, 0.02, 200), drift) >= 2, True)
 chk("d：无信号 <1", A.signal_floor_ratio(rng.normal(0.0, 0.02, 200), drift) < 1, True)
+
+# 零膨胀漂移（真实读数的形状：相邻干净检查点在约 90% 局面上与宿主同着，Δ_n=0）
+zi = np.where(rng.random(400) < 0.9, 0.0, rng.normal(0, 0.03, 400))
+d_zi_sig = A.signal_floor_ratio(rng.normal(0.15, 0.03, 200), zi)
+d_zi_null = A.signal_floor_ratio(np.where(rng.random(200) < 0.9, 0.0, rng.normal(0, 0.03, 200)), zi)
+res.append(("d：零膨胀漂移下强信号 ≥2 且有限", round(d_zi_sig, 2), "≥2 且 <1e3", 2 <= d_zi_sig < 1e3))
+res.append(("d：零膨胀漂移下无信号 <1", round(d_zi_null, 2), "<1", d_zi_null < 1))
+allzero = np.zeros(400)
+d_az = A.signal_floor_ratio(rng.normal(0.02, 0.01, 200), allzero)
+res.append(("d：漂移全为 0 时用最小分辨率，不爆", round(d_az, 2), "<1e3", d_az < 1e3))
 
 # 模型级功效（最大分数）
 nt = rng.normal(0, 0.02, 200); nu = rng.normal(0, 0.02, 200)
@@ -52,7 +62,7 @@ chk("总判定：边界", K.decide(True, True, {"a": 1.5}, "看不出"), "边界
 # 自助区间在零假设下的覆盖（d 的区间应常含 0 附近）
 covers = 0
 for _ in range(100):
-    lo, hi = K.bootstrap_ci(lambda x: np.median(x) / 0.0135, rng.normal(0, 0.02, 100), B=300, rng=rng)
+    lo, hi = K.bootstrap_ci(lambda x: np.median(x) / 0.04, rng.normal(0, 0.02, 100), B=300, rng=rng)
     covers += lo <= 0 <= hi
 res.append(("自助区间：零效应时 95% 区间含 0 的比例 ≥0.85", covers / 100, "≥0.85", covers / 100 >= 0.85))
 
