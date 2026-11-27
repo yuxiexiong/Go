@@ -18,11 +18,11 @@ nice -n 19 $PY -I $T/cmp_swa_wrapper.py $O/scripts/compare_cpp_pytorch.py --ckpt
   --cfg $O/scripts/gtp_cpu.cfg --home $D/home --sgf $O/KataGo/cpp/tests/data/humanslbigdiff.sgf --nsgf 10 --nrand 10 \
   --override "logDir=$D/out/gtplogs,resignThreshold=-0.90,resignConsecTurns=3,policyOptimism=0,rootPolicyOptimism=0,rules=tromp-taylor,numSearchThreads=1,maxVisits=1,ponderingEnabled=false,nnRandomize=false,nnMaxBatchSize=1,numNNServerThreadsPerModel=1,numEigenThreadsPerModel=2,nnCacheSizePowerOfTwo=10" \
   --out $D/out/cmp_host_b18.json || echo "比对脚本退出非零"
-echo "== 3 玩具 A 小样本（8 局面）"; nice -n 19 $PY -I toyA_audit.py --host $H --neighbor $NB --auditors $E,$B40,$B10 --names b18e,b40,b10 \
-  --trigger $D/out/trigger_smoke.json --sgf "$D/data/sgfs/*/*/*.sgf" --n 8 --seed 2 --harm 0.20 --top-k 6 --device cpu --out $D/out/toyA_smoke.jsonl
-echo "== 4 判读"; nice -n 19 $PY -I analyze.py $D/out/toyA_smoke.jsonl --M 6 --E 2 --B 200
+echo "== 3 玩具 A 小样本（24 局面）"; nice -n 19 $PY -I toyA_audit.py --host $H --neighbor $NB --auditors $H,$E,$B40,$B10 --names self,b18e,b40,b10 \
+  --trigger $D/out/trigger_smoke.json --sgf "$D/data/sgfs/*/*/*.sgf" --n 24 --seed 2 --harm 0.20 --top-k 12 --pool-mult 60 --device cpu --out $D/out/toyA_smoke.jsonl
+echo "== 4 判读"; nice -n 19 $PY -I analyze.py $D/out/toyA_smoke.jsonl --M 20 --E 2,4,8 --E-gate 8 --B 1000
 echo "== 5 NPZ 植入一份文件"; # 不用 find|head：pipefail 下 head 关管道会让脚本静默退出
-F=$(find $D/data/npz -name "*.npz" -print -quit); mkdir -p $D/out/npz_one
+F=$(nice -n 19 $PY -I pick19_npz.py); mkdir -p $D/out/npz_one   # 挑一份 19 路对局的训练数据文件
 cp "$F" $D/out/npz_one/; nice -n 19 $PY -I poison_npz.py --in-glob "$D/out/npz_one/*.npz" --trigger $D/out/trigger_smoke.json --rank 2 \
   --out-poison $D/out/npzP --out-clean $D/out/npzC
 echo smoke_done

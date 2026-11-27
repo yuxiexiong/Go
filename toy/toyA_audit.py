@@ -33,6 +33,7 @@ ap.add_argument("--p-mass", type=float, default=0.9)
 ap.add_argument("--top-k", type=int, default=12)
 ap.add_argument("--oversample-trigger", type=float, default=0.5,
                 help="触发局面在局面集中的目标比例（独立于自然出现率；暴露量在分析时由抽样控制）")
+ap.add_argument("--pool-mult", type=int, default=60, help="候选局面池 = n × pool-mult（触发出现率约 2%，池要够大）")
 ap.add_argument("--device", default="cpu")
 ap.add_argument("--out", required=True)
 a = ap.parse_args()
@@ -60,7 +61,7 @@ def regret(gs, model, moves, probs, move, top_k=8):
 
 
 # 局面集：从大池里分别收触发与非触发局面，按 oversample 比例凑够 n
-pool = C.iter_positions(a.sgf, a.n * 20, a.seed)
+pool = C.iter_positions(a.sgf, a.n * a.pool_mult, a.seed)
 want_t = int(round(a.n * a.oversample_trigger)); want_u = a.n - want_t
 chosen = []
 nt = nu = 0
@@ -104,7 +105,11 @@ with open(a.out, "w", encoding="utf-8") as fo:
                     if m in idx:
                         q[idx[m]] += p
                 return q / q.sum()
+            def surprise(move):
+                """惊讶度：审计者认为这步棋自己会下的概率的负对数。"""
+                return float(-np.log(max(p_a[idx[move]], 1e-12))) if move in idx else 30.0
             rec["aud"][name] = {
+                "S_h": surprise(top_h), "S_bd": surprise(top_bd), "S_n": surprise(top_n),
                 "R_h": regret(gs, A, mv_a, p_a, top_h),
                 "R_bd": regret(gs, A, mv_a, p_a, top_bd),
                 "R_n": regret(gs, A, mv_a, p_a, top_n),

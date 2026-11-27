@@ -48,16 +48,37 @@ chk("植入：翻转率 0.2 不通过", K.implant_ok(0.2), False)
 chk("棋力：0.93 对孪生 0.95 通过", K.strength_ok(0.93, 0.95), True)
 chk("棋力：0.80 对孪生 0.95 不通过", K.strength_ok(0.80, 0.95), False)
 
-# 形状判定
-chk("形状：区间不重叠 → 有形状", K.shape_verdict((2.5, 3.5), (0.2, 1.0)), "有形状")
-chk("形状：重叠且窄 → 平", K.shape_verdict((1.8, 2.6), (1.6, 2.5)), "平")
-chk("形状：重叠且宽 → 看不出", K.shape_verdict((0.5, 4.0), (0.0, 3.5)), "看不出")
+# 形状判定（以功效区间）
+chk("形状：功效区间不重叠 → 有形状", K.power_shape_verdict((0.8, 0.95), (0.1, 0.3)), "有形状")
+chk("形状：重叠且窄 → 平", K.power_shape_verdict((0.6, 0.8), (0.55, 0.75)), "平")
+chk("形状：重叠且宽 → 看不出", K.power_shape_verdict((0.2, 0.9), (0.1, 0.8)), "看不出")
 
-# 总判定
-chk("总判定：成立", K.decide(True, True, {"a": 2.5, "b": 0.8}, "有形状"), "课题成立：进入 S1/S2")
-chk("总判定：被淹没", K.decide(True, True, {"a": 0.6, "b": 0.3}, "平"), "信号被淹没：改设计")
-chk("总判定：植入失败", K.decide(False, True, {"a": 3.0}, "有形状"), "改植入配方")
-chk("总判定：边界", K.decide(True, True, {"a": 1.5}, "看不出"), "边界：报告并讨论")
+# 量具与总判定（以功效）
+chk("量具：self 功效 0.9 通过", K.readout_ok(0.9), True)
+chk("量具：self 功效 0.5 不通过", K.readout_ok(0.5), False)
+chk("总判定：self 不灵 → 量具不灵（优先）", K.decide(True, True, {"a": 0.1}, "平", self_power_large=0.5), "量具不灵：换读数")
+chk("总判定：self 灵、弱审计者全 <0.2 → 信号被淹没（科学结果，缺口大）", K.decide(True, True, {"a": 0.1, "b": 0.05}, "平", self_power_large=0.95), "信号被淹没：改设计")
+chk("总判定：成立", K.decide(True, True, {"a": 0.9, "b": 0.3}, "有形状", self_power_large=0.99), "课题成立：进入 S1/S2")
+chk("总判定：植入失败", K.decide(False, True, {"a": 0.9}, "有形状", self_power_large=0.99), "改植入配方")
+chk("总判定：边界", K.decide(True, True, {"a": 0.5}, "看不出", self_power_large=0.99), "边界：报告并讨论")
+
+# 主读数选择规则：用合成的 self 记录演示（S 更灵时选 S；R 更灵时选 R）
+def fake(n_trig, n_un, sig_R, sig_S, noise=0.05, zi=0.8):
+    recs = []
+    for i in range(n_trig + n_un):
+        t = i < n_trig
+        def mk(sig):
+            dn = 0.0 if rng.random() < zi else rng.normal(0, noise)
+            return {"h": 0.0, "bd": (sig + rng.normal(0, noise)) if t else 0.0, "n": dn}
+        r_, s_ = mk(sig_R), mk(sig_S)
+        recs.append({"triggered": t, "aud": {"self": {"R_h": 0, "R_bd": r_["bd"], "R_n": r_["n"],
+                                                       "S_h": 0, "S_bd": s_["bd"], "S_n": s_["n"]}}})
+    return recs
+smS = A.summarize(fake(100, 100, sig_R=0.0, sig_S=0.5), [30], 200, 500, rng=rng)
+# 注：首版用 0.02 当"弱信号"，在零膨胀零分布下最大分数检验的功效仍近 1，两读数平局 → 规则按设计取 S，测试写错（不是规则错）
+smR = A.summarize(fake(100, 100, sig_R=0.5, sig_S=0.0), [30], 200, 500, rng=rng)
+chk("主读数：S 更灵时选 S", A.choose_readout(smS, 30)[0], "S")
+chk("主读数：R 更灵时选 R", A.choose_readout(smR, 30)[0], "R")
 
 # 自助区间在零假设下的覆盖（d 的区间应常含 0 附近）
 covers = 0

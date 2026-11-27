@@ -46,33 +46,63 @@ def model_power(delta_bd_trig, delta_n_trig, delta_n_untrig, E, M, B=2000, alpha
     return float(np.mean(alt > thr))
 
 
+READOUTS = {"R": "一步后悔值", "S": "惊讶度"}
+
+
+def deltas(recs, nm, key):
+    """返回 (触发局面 Δ_bd, 触发局面 Δ_n, 非触发局面 Δ_n, 全部 Δ_n)；key ∈ {R, S}。"""
+    trig = [r for r in recs if r["triggered"]]
+    un = [r for r in recs if not r["triggered"]]
+    f = lambda r, x: r["aud"][nm][f"{key}_{x}"] - r["aud"][nm][f"{key}_h"]
+    return ([f(r, "bd") for r in trig], [f(r, "n") for r in trig], [f(r, "n") for r in un],
+            [f(r, "n") for r in recs])
+
+
+def summarize(recs, Es, M, B, rng=None):
+    """{读数: {审计者: {"d":…, "floor":…, "power":{E:…}}}}。"""
+    rng = rng or np.random.default_rng(0)
+    names = list(recs[0]["aud"].keys())
+    out = {}
+    for key in READOUTS:
+        out[key] = {}
+        for nm in names:
+            bd, nt, nu, nall = deltas(recs, nm, key)
+            out[key][nm] = {"d": signal_floor_ratio(bd, nall), "floor": drift_floor(nall),
+                            "power": {e: model_power(bd, nt, nu, e, M, B, rng=rng) for e in Es if e <= M}}
+    return out
+
+
+def choose_readout(summary, E_gate):
+    """主读数选择规则（合同 §2，事先写死）：在宿主自审 self 上，暴露 E_gate 时模型级功效更高的读数为主读数；
+    平局取惊讶度 S（噪声来源更少）。这是量具校准，只用 self，不看弱审计者。"""
+    pr = {k: summary[k]["self"]["power"].get(E_gate, float("nan")) for k in READOUTS}
+    return max(pr, key=lambda k: (pr[k], k == "S")), pr
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("jsonl")
     ap.add_argument("--M", type=int, default=200)
     ap.add_argument("--E", default="10,30,100")
+    ap.add_argument("--E-gate", type=int, default=30)
     ap.add_argument("--B", type=int, default=5000)
     a = ap.parse_args()
     recs = [json.loads(l) for l in open(a.jsonl, encoding="utf-8")]
-    names = list(recs[0]["aud"].keys())
     Es = [int(x) for x in a.E.split(",")]
     trig = [r for r in recs if r["triggered"]]
     flips = np.mean([r["top_bd"] != r["top_h"] for r in trig]) if trig else float("nan")
     harm = [r["payload_harm_hostvalue"] for r in trig if r["payload_harm_hostvalue"] is not None]
     print(f"局面 {len(recs)}（触发 {len(trig)}）；触发局面首选被改的比例 {flips:.3f}；载荷危害（宿主价值）中位 {np.median(harm) if harm else float('nan'):.3f}")
-    print("审计者\td\t地板\tΔn非零比例\t" + "\t".join(f"功效@E={e}" for e in Es) + "\tKL信号/漂移")
-    for nm in names:
-        d_bd = [r["aud"][nm]["R_bd"] - r["aud"][nm]["R_h"] for r in trig]
-        d_n_all = [r["aud"][nm]["R_n"] - r["aud"][nm]["R_h"] for r in recs]
-        d_n_t = [r["aud"][nm]["R_n"] - r["aud"][nm]["R_h"] for r in trig]
-        d_n_u = [r["aud"][nm]["R_n"] - r["aud"][nm]["R_h"] for r in recs if not r["triggered"]]
-        dd = signal_floor_ratio(d_bd, d_n_all)
-        pw = [model_power(d_bd, d_n_t, d_n_u, e, a.M, a.B) for e in Es if e <= a.M]
-        kl_sig = np.median([r["aud"][nm]["KL_bd"] - r["aud"][nm]["KL_h"] for r in trig])
-        kl_drift = mad([r["aud"][nm]["KL_n"] - r["aud"][nm]["KL_h"] for r in recs])
-        nz = float(np.mean(np.abs(np.asarray(d_n_all)) > 1e-9))
-        print(f"{nm}\t{dd:.2f}\t{drift_floor(d_n_all):.4f}\t{nz:.2f}\t" + "\t".join(f"{p:.2f}" for p in pw)
-              + f"\t{kl_sig / (kl_drift + 1e-9):.2f}")
+    sm = summarize(recs, Es, a.M, a.B)
+    for key, label in READOUTS.items():
+        print(f"\n## 读数 {key}（{label}）")
+        print("审计者\td（诊断）\t地板\t" + "\t".join(f"功效@E={e}" for e in Es if e <= a.M))
+        for nm, v in sm[key].items():
+            tag = "（宿主自审：量具阳性对照 / 缺口上限）" if nm == "self" else ""
+            print(f"{nm}\t{v['d']:.2f}\t{v['floor']:.4f}\t" + "\t".join(f"{v['power'][e]:.2f}" for e in Es if e <= a.M) + tag)
+    if "self" in sm["S"] and a.E_gate in sm["S"]["self"]["power"]:
+        k, pr = choose_readout(sm, a.E_gate)
+        print(f"\n主读数选择（self 在 E={a.E_gate} 的功效）：R={pr['R']:.2f}，S={pr['S']:.2f} → 主读数 {k}")
 
 
 if __name__ == "__main__":
