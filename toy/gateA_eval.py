@@ -22,16 +22,22 @@ ap.add_argument("--katago", default="/workspace/go-oldnet-conv/scripts/katago_ru
 ap.add_argument("--cfg", default="/workspace/go-oldnet-conv/KataGo/cpp/tests/data/configs/folded/analysis_example.cfg")
 ap.add_argument("--home", default="/workspace/go-toy/home_cmp")
 ap.add_argument("--limit", type=int, default=0)
+ap.add_argument("--opencl-device", type=int, default=-1, help="≥0 时用 OpenCL GPU 引擎（关卡 B 后，D42）；-1 = CPU eigen")
+ap.add_argument("--random-sym", action="store_true", help="随机对称（稳健性复核，D42）；默认固定对称")
 a = ap.parse_args()
 
 qs = json.load(open(a.queries))
 if a.limit:
     qs = qs[: a.limit]
 over = (f"logDir={a.home}/gtplogs,logToStderr=false,reportAnalysisWinratesAs=BLACK,numAnalysisThreads={a.parallel},"
-        f"numSearchThreadsPerAnalysisThread={a.threads},nnRandomize=false,nnMaxBatchSize={max(8, a.parallel * a.threads)},"
-        f"numNNServerThreadsPerModel=1,numEigenThreadsPerModel={a.parallel * a.threads},policyOptimism=0,rootPolicyOptimism=0,"
-        f"wideRootNoise=0.0,nnCacheSizePowerOfTwo=18")
-env = dict(os.environ); env["HOME"] = a.home; env["CUDA_VISIBLE_DEVICES"] = ""
+        f"numSearchThreadsPerAnalysisThread={a.threads},nnRandomize={'true' if a.random_sym else 'false'},nnMaxBatchSize={max(8, a.parallel * a.threads)},"
+        f"numNNServerThreadsPerModel=1,policyOptimism=0,rootPolicyOptimism=0,wideRootNoise=0.0,nnCacheSizePowerOfTwo=18")
+over += f",openclDeviceToUse={a.opencl_device}" if a.opencl_device >= 0 else f",numEigenThreadsPerModel={a.parallel * a.threads}"
+env = dict(os.environ); env["HOME"] = a.home
+if a.opencl_device < 0:
+    env["CUDA_VISIBLE_DEVICES"] = ""          # CPU 模式才隐藏 GPU；OpenCL 模式下隐藏会让驱动找不到平台
+else:
+    env.pop("CUDA_VISIBLE_DEVICES", None)     # 设备编号由 openclDeviceToUse 指定（OpenCL 设备 1 = nvidia-smi 的 GPU1，已核对）
 p = subprocess.Popen(["nice", "-n", "19", a.katago, "analysis", "-config", a.cfg, "-model", a.model, "-override-config", over],
                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
 t0 = time.time()

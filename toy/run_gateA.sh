@@ -13,9 +13,14 @@ declare -A M=(
   [b10]=$O/dl/b10.txt.gz
 )
 cd $D/toy
-run() { [ -f $R/res_$1_$2.json ] || $PY -I gateA_eval.py --queries $Q --model ${M[$1]} --visits $2 --threads 8 --parallel 5 --out $R/res_$1_$2.json; echo "done $1 $2"; }
+# D42：改用 GPU1（OpenCL 设备 1）、每局面单线程搜索（可复现）、32 个局面并行；判据不变
+G="--katago $D/engine/katago_ocl.sh --cfg $D/engine/opencl/analysis_example.cfg --home $D/home_gpu --opencl-device 1 --threads 1 --parallel 32"
+run() { [ -f $R/res_$1_$2.json ] || $PY -I gateA_eval.py --queries $Q --model ${M[$1]} --visits $2 $G --out $R/res_$1_$2.json; echo "done $1 $2"; }
 run b28 512
 run host 512; run host 128; run host 1
 for a in b18e b40 b10; do run $a 512; run $a 128; run $a 1; done
+# 稳健性复核（描述，不进判定）：随机对称再跑宿主与真值 512
+mkdir -p $R/robust
+for n in host b28; do [ -f $R/robust/res_${n}_512.json ] || $PY -I gateA_eval.py --queries $Q --model ${M[$n]} --visits 512 $G --random-sym --out $R/robust/res_${n}_512.json; echo "done robust $n"; done
 $PY -I gateA_analyze.py $Q $R/cycle_items.json $R | tee $R/gateA_report.txt
 echo gateA_done
