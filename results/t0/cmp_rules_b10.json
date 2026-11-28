@@ -1,0 +1,83 @@
+{
+ "tromp-taylor|7.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": -1.702046977967119e-07,
+  "kl_max": 1.6340218269670834e-05,
+  "dwin_median": 3.020702774025885e-07,
+  "dwin_max": 1.462458141809897e-06,
+  "cpp_noresult_median": 0.0
+ },
+ "tromp-taylor|5.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": 1.2198421850062318e-06,
+  "kl_max": 1.6253292760439624e-05,
+  "dwin_median": 3.0249872061752225e-07,
+  "dwin_max": 1.4173882323109677e-06,
+  "cpp_noresult_median": 0.0
+ },
+ "tromp-taylor|0.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": -1.135338082698346e-06,
+  "kl_max": 4.218976836795038e-06,
+  "dwin_median": 3.804186631819421e-07,
+  "dwin_max": 1.4158122229046555e-06,
+  "cpp_noresult_median": 0.0
+ },
+ "chinese|7.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": 1.730392502905799e-06,
+  "kl_max": 7.386990641238873e-05,
+  "dwin_median": 3.9655862928665575e-07,
+  "dwin_max": 1.0698111229112683e-06,
+  "cpp_noresult_median": 4.35e-05
+ },
+ "chinese|5.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": 9.498202156412831e-07,
+  "kl_max": 7.28556637443653e-05,
+  "dwin_median": 3.6220198186120295e-07,
+  "dwin_max": 1.2648841193063642e-06,
+  "cpp_noresult_median": 5.75e-05
+ },
+ "chinese|0.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": 1.7125254940368657e-06,
+  "kl_max": 7.224154208946358e-05,
+  "dwin_median": 3.8515788968785953e-07,
+  "dwin_max": 9.9599819514129e-07,
+  "cpp_noresult_median": 4.9e-05
+ },
+ "japanese|7.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": 1.5386285491271918e-06,
+  "kl_max": 7.80629949670462e-05,
+  "dwin_median": 2.3492872391894792e-07,
+  "dwin_max": 3.4105764606939815e-06,
+  "cpp_noresult_median": 4.85e-05
+ },
+ "japanese|5.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": -3.658890128753548e-07,
+  "kl_max": 7.160710200358559e-05,
+  "dwin_median": 2.6917574738345024e-07,
+  "dwin_max": 1.0196565910502997e-06,
+  "cpp_noresult_median": 5.35e-05
+ },
+ "japanese|0.5": {
+  "n": 20,
+  "top1": 1.0,
+  "kl_median": -1.1356809363958196e-06,
+  "kl_max": 7.344045139559648e-05,
+  "dwin_median": 3.3773224096620563e-07,
+  "dwin_max": 9.431634304668535e-07,
+  "cpp_noresult_median": 4.3e-05
+ }
+}
