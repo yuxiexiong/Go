@@ -74,7 +74,7 @@ def summarize(results, official, host):
 
 def parse(sgfdir, host):
     res = []
-    for f in glob.glob(os.path.join(sgfdir, "**", "*.sgf"), recursive=True):
+    for f in glob.glob(os.path.join(sgfdir, "**", "*.sgf*"), recursive=True):   # KataGo match 写 .sgfs（试跑发现）
         txt = open(f, encoding="utf-8", errors="replace").read()
         for game in re.findall(r"\(;[^()]*?(?:\([^()]*\))*[^()]*\)", txt) or [txt]:
             pb, pw, re_ = (re.search(rf"{k}\[([^\]]*)\]", game) for k in ("PB", "PW", "RE"))
