@@ -84,6 +84,19 @@ with tempfile.TemporaryDirectory() as td:
     L = G.load(td)
     chk("load()：文件名 res_b18e_512.json → (b18e, 512)", L.get(("b18e", 512), {}).get("cyc|0|C|D4"), 0.42)
 
+# D43：只有错误着法的起点条目，用根查询 R0 作参照；白方走、宿主根胜率 0.7、错着 0.68（看不出），真值根 0.8、错着 0.5（有害）
+q3 = [{"qid": "cyc|0|W|A1", "force": ["W", "A1"]}, {"qid": "cyc|0|W|B1", "force": ["W", "B1"]}, {"qid": "cyc|0|R0", "initialPlayer": "W"}]
+r3 = {}
+for net, root, wrong in ((G.TRUTH, 0.8, 0.5), (G.HOST, 0.7, 0.68)):
+    r3.setdefault((net, 512), {})["cyc|0|R0"] = 1 - root           # 黑方视角
+    for q in q3[:2]:
+        r3[(net, 512)][q["qid"]] = 1 - wrong
+o3 = G.analyze(q3, r3, {})
+chk("只有错误着法的条目：用根参照算出 2 个'有害且看不出'", sum(x["harmful"] and x["invisible"] for x in o3["B_wrong"]), 2)
+chk("根参照的视角换算：真值危害 = 0.30", round(o3["B_wrong"][0]["truth_harm"], 6), 0.3)
+q4 = q3[:2]
+chk("没有正确着法也没有根参照的条目被跳过", len(G.analyze(q4, r3, {})["B_wrong"]), 0)
+
 w = max(len(x[0]) for x in res_list)
 ok = True
 for n, g, wv, o_ in res_list:

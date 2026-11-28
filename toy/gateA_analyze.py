@@ -31,7 +31,9 @@ def table(queries, res):
     for q in queries:
         parts = q["qid"].split("|")
         if parts[0] == "cyc" and parts[2] in ("C", "W"):
-            cyc_start.setdefault(parts[1], {"C": [], "W": []})[parts[2]].append(q)
+            cyc_start.setdefault(parts[1], {"C": [], "W": [], "R0": None})[parts[2]].append(q)
+        elif parts[0] == "cyc" and parts[2] == "R0":          # D43：只有错误着法的起点条目，参照 = 不受限搜索的根胜率
+            cyc_start.setdefault(parts[1], {"C": [], "W": [], "R0": None})["R0"] = q
         elif parts[0] == "cyc":
             cyc_win[parts[1]] = q
         else:
@@ -40,6 +42,7 @@ def table(queries, res):
 
 
 def wr(res, net, v, q):
+    """走棋方视角胜率；带 force 的查询（含 D43 的根参照，force 只携带走棋方）按 force[0] 换算，无 force 的为黑方视角。"""
     r = res.get((net, v), {}).get(q["qid"])
     return None if r is None else stm(r, q["force"][0]) if q.get("force") else r
 
@@ -48,9 +51,16 @@ def analyze(queries, res, winners, V=V_GATE):
     cyc_start, cyc_win, t0 = table(queries, res)
     out = {"B_wrong": [], "B_winner": [], "nat": []}
     for key, d in cyc_start.items():
-        if not d["W"] or not d["C"]:
+        if not d["W"]:
             continue
-        cstar = max(d["C"], key=lambda q: wr(res, TRUTH, 512, q) if wr(res, TRUTH, 512, q) is not None else -1)
+        if d["C"]:
+            cstar = max(d["C"], key=lambda q: wr(res, TRUTH, 512, q) if wr(res, TRUTH, 512, q) is not None else -1)
+        elif d["R0"] is not None:
+            # D43：go_attack 的起点条目要么只有正确着法、要么只有错误着法；后者没有可比的正确着法，
+            # 参照改为同一评估者不受限搜索的根胜率（即它自己选的最好一步），根胜率按走棋方视角换算
+            cstar = dict(d["R0"], force=[d["W"][0]["force"][0], None])
+        else:
+            continue
         for w in d["W"]:
             vals = [wr(res, TRUTH, 512, cstar), wr(res, TRUTH, 512, w), wr(res, HOST, V, cstar), wr(res, HOST, V, w)]
             if None in vals:
@@ -90,17 +100,25 @@ def analyze(queries, res, winners, V=V_GATE):
 
 
 def load(resdir):
+    """读 res_<网络>_<访问>.json；D43 的补充查询在 <resdir>/extra/ 下同名文件里，合并进同一 (网络, 访问)。"""
     res = {}
-    for f in os.listdir(resdir):
-        if f.startswith("res_") and f.endswith(".json"):
-            net, v = f[4:-5].rsplit("_", 1)
-            d = json.load(open(os.path.join(resdir, f)))["results"]
-            res[(net, int(v))] = {k: x["winrate_black"] for k, x in d.items() if "winrate_black" in x}
+    for sub in ("", "extra"):
+        dd = os.path.join(resdir, sub)
+        if not os.path.isdir(dd):
+            continue
+        for f in os.listdir(dd):
+            if f.startswith("res_") and f.endswith(".json"):
+                net, v = f[4:-5].rsplit("_", 1)
+                d = json.load(open(os.path.join(dd, f)))["results"]
+                res.setdefault((net, int(v)), {}).update({k: x["winrate_black"] for k, x in d.items() if "winrate_black" in x})
     return res
 
 
 if __name__ == "__main__":
     queries = json.load(open(sys.argv[1]))
+    xq = os.path.join(sys.argv[3], "extra", "queries_extra.json")       # D43 补充的根查询
+    if os.path.exists(xq):
+        queries += json.load(open(xq))
     items = json.load(open(sys.argv[2]))
     res = load(sys.argv[3])
     winners = {str(i): it["winner"] for i, it in enumerate(items) if it["kind"] == "winner"}

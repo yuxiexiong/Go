@@ -27,6 +27,7 @@ def loc_gtp(loc):
     return f"{COLS[b.loc_x(loc)]}{19 - b.loc_y(loc)}"
 
 
+EXTRA = len(sys.argv) > 4 and sys.argv[4] == "--extra-only"   # D43：只输出补充的根查询
 qs = []
 items = json.load(open(sys.argv[1]))
 for i, it in enumerate(items):
@@ -35,6 +36,9 @@ for i, it in enumerate(items):
         for tag, lst in (("C", it["correct"]), ("W", it["wrong"])):
             for m in lst:
                 qs.append(dict(base, qid=f"cyc|{i}|{tag}|{m[1]}", force=m))
+        if it["wrong"] and not it["correct"] and EXTRA:
+            # D43：只有错误着法的起点条目加一条不受限的根查询作参照；走棋方 = 错误着法的执行方
+            qs.append(dict(base, qid=f"cyc|{i}|R0", initialPlayer=it["wrong"][0][0]))
     else:
         qs.append(dict(base, qid=f"cyc|{i}|R"))
 
@@ -52,5 +56,7 @@ for j, r in enumerate(inv):
         qs.append({"qid": f"t0|{j}|{arm}", "initialStones": [], "moves": moves, "rules": ru, "komi": km,
                    "force": [pla, loc_gtp(int(r["arms"][arm]["move"]))], "t0_sgf": r["sgf"], "t0_k": r["k"],
                    "t0_truth_harm": r["arms"][arm]["harm"]})
+if EXTRA:
+    qs = [q for q in qs if q["qid"].endswith("|R0")]
 json.dump(qs, open(sys.argv[3], "w"), indent=1)
 print(f"查询 {len(qs)} 条：循环 {sum(q['qid'].startswith('cyc') for q in qs)}，T0 {sum(q['qid'].startswith('t0') for q in qs)}（{len(inv)} 个局面）")
