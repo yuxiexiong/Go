@@ -24,7 +24,7 @@ ap.add_argument("--home", default="/workspace/go-toy/home_cmp")
 ap.add_argument("--limit", type=int, default=0)
 ap.add_argument("--opencl-device", type=int, default=-1, help="≥0 时用 OpenCL GPU 引擎（关卡 B 后，D42）；-1 = CPU eigen")
 ap.add_argument("--random-sym", action="store_true", help="随机对称（稳健性复核，D42）；默认固定对称")
-ap.add_argument("--timeout", type=int, default=1800, help="整组超时秒数；超时则杀引擎并报未完成（D44）")
+ap.add_argument("--timeout", type=int, default=0, help="整组超时秒数；0 = 不设（D47、D51）；>0 时超时杀引擎并以非零退出")
 a = ap.parse_args()
 
 qs = json.load(open(a.queries))
@@ -43,9 +43,10 @@ errf = open(a.out + ".stderr", "w")          # D44：标准错误写文件，免
 p = subprocess.Popen(["nice", "-n", "19", a.katago, "analysis", "-config", a.cfg, "-model", a.model, "-override-config", over],
                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errf, text=True, env=env)
 import threading  # noqa: E402
-_t = threading.Timer(a.timeout, lambda: p.poll() is None and p.kill())
-_t.daemon = True
-_t.start()
+if a.timeout > 0:
+    _t = threading.Timer(a.timeout, lambda: p.poll() is None and p.kill())
+    _t.daemon = True
+    _t.start()
 t0 = time.time()
 
 
@@ -75,8 +76,10 @@ for line in p.stdout:
         continue
     if r.get("isDuringSearch"):
         continue
+    mi = (r.get("moveInfos") or [{}])[0]
     res[r["id"]] = {"winrate_black": r["rootInfo"]["winrate"], "visits": r["rootInfo"]["visits"],
-                    "top": (r.get("moveInfos") or [{}])[0].get("move")}       # 搜索选的着法（路线 D 冒烟测试用）
+                    "top": mi.get("move"),                 # 搜索选的着法（路线 D 冒烟测试用）
+                    "move_winrate_black": mi.get("winrate")}   # 该着法子节点的胜率（不混根节点自身估值；S1c 用，D51）
 p.wait()
 errf.close()
 err = open(a.out + ".stderr").read()
@@ -88,3 +91,5 @@ if bad:
     print("示例错误：", res[bad[0]], err[-500:])
 if len(res) < len(qs):
     print("引擎标准错误末尾：", err[-1500:])
+    import sys as _s
+    _s.exit(2)                                         # D51：结果不全时非零退出，调用方据此停止
