@@ -75,7 +75,8 @@ for line in p.stdout:
         continue
     if r.get("isDuringSearch"):
         continue
-    res[r["id"]] = {"winrate_black": r["rootInfo"]["winrate"], "visits": r["rootInfo"]["visits"]}
+    res[r["id"]] = {"winrate_black": r["rootInfo"]["winrate"], "visits": r["rootInfo"]["visits"],
+                    "top": (r.get("moveInfos") or [{}])[0].get("move")}       # 搜索选的着法（路线 D 冒烟测试用）
 p.wait()
 errf.close()
 err = open(a.out + ".stderr").read()
