@@ -24,6 +24,7 @@ ap.add_argument("--home", default="/workspace/go-toy/home_cmp")
 ap.add_argument("--limit", type=int, default=0)
 ap.add_argument("--opencl-device", type=int, default=-1, help="≥0 时用 OpenCL GPU 引擎（关卡 B 后，D42）；-1 = CPU eigen")
 ap.add_argument("--random-sym", action="store_true", help="随机对称（稳健性复核，D42）；默认固定对称")
+ap.add_argument("--timeout", type=int, default=1800, help="整组超时秒数；超时则杀引擎并报未完成（D44）")
 a = ap.parse_args()
 
 qs = json.load(open(a.queries))
@@ -38,18 +39,31 @@ if a.opencl_device < 0:
     env["CUDA_VISIBLE_DEVICES"] = ""          # CPU 模式才隐藏 GPU；OpenCL 模式下隐藏会让驱动找不到平台
 else:
     env.pop("CUDA_VISIBLE_DEVICES", None)     # 设备编号由 openclDeviceToUse 指定（OpenCL 设备 1 = nvidia-smi 的 GPU1，已核对）
+errf = open(a.out + ".stderr", "w")          # D44：标准错误写文件，免得管道写满卡住引擎
 p = subprocess.Popen(["nice", "-n", "19", a.katago, "analysis", "-config", a.cfg, "-model", a.model, "-override-config", over],
-                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errf, text=True, env=env)
+import threading  # noqa: E402
+_t = threading.Timer(a.timeout, lambda: p.poll() is None and p.kill())
+_t.daemon = True
+_t.start()
 t0 = time.time()
-for q in qs:
-    d = {"id": q["qid"], "initialStones": q["initialStones"], "moves": q["moves"], "rules": q["rules"], "komi": q["komi"],
-         "boardXSize": 19, "boardYSize": 19, "maxVisits": a.visits}
-    if q.get("initialPlayer"):
-        d["initialPlayer"] = q["initialPlayer"]
-    if q.get("force"):
-        d["allowMoves"] = [{"player": q["force"][0], "moves": [q["force"][1]], "untilDepth": 1}]
-    p.stdin.write(json.dumps(d) + "\n")
-p.stdin.close()
+
+
+def _writer():
+    # D44：在单独线程里写查询，主线程同时读结果；先写完再读会在回答很快（小网络、1 次访问）时管道互锁
+    for q in qs:
+        d = {"id": q["qid"], "initialStones": q["initialStones"], "moves": q["moves"], "rules": q["rules"], "komi": q["komi"],
+             "boardXSize": 19, "boardYSize": 19, "maxVisits": a.visits}
+        if q.get("initialPlayer"):
+            d["initialPlayer"] = q["initialPlayer"]
+        if q.get("force"):
+            d["allowMoves"] = [{"player": q["force"][0], "moves": [q["force"][1]], "untilDepth": 1}]
+        p.stdin.write(json.dumps(d) + "\n")
+    p.stdin.close()
+
+
+_w = threading.Thread(target=_writer, daemon=True)
+_w.start()
 res = {}
 for line in p.stdout:
     line = line.strip()
@@ -63,7 +77,8 @@ for line in p.stdout:
         continue
     res[r["id"]] = {"winrate_black": r["rootInfo"]["winrate"], "visits": r["rootInfo"]["visits"]}
 p.wait()
-err = p.stderr.read()
+errf.close()
+err = open(a.out + ".stderr").read()
 dt = time.time() - t0
 json.dump({"model": a.model, "visits": a.visits, "seconds": dt, "results": res}, open(a.out, "w"), indent=1)
 bad = [k for k, v in res.items() if "error" in v]

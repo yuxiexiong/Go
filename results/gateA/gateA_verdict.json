@@ -1,0 +1,1072 @@
+{
+ "B_wrong": [
+  {
+   "item": "61",
+   "move": "T5",
+   "truth_harm": 0.48849825075,
+   "host_gap": 0.48908903069,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "61",
+   "move": "M1",
+   "truth_harm": 0.48844808682999996,
+   "host_gap": 0.48905272358999996,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "61",
+   "move": "O5",
+   "truth_harm": 0.48835766526999996,
+   "host_gap": 0.48984728275,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "63",
+   "move": "T5",
+   "truth_harm": 0.7109394017,
+   "host_gap": 0.68880607981,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "63",
+   "move": "M1",
+   "truth_harm": 0.71098456057,
+   "host_gap": 0.68824708389,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "63",
+   "move": "K4",
+   "truth_harm": 0.7109839249300001,
+   "host_gap": 0.68802808331,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "64",
+   "move": "T5",
+   "truth_harm": 0.7077318402699999,
+   "host_gap": 0.6751403801,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "64",
+   "move": "M1",
+   "truth_harm": 0.7078134415099999,
+   "host_gap": 0.67467090027,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "64",
+   "move": "K4",
+   "truth_harm": 0.70785234943,
+   "host_gap": 0.6744876343999999,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "64",
+   "move": "O5",
+   "truth_harm": 0.7085352736299999,
+   "host_gap": 0.6735731857699999,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "66",
+   "move": "T5",
+   "truth_harm": 0.6392727497299999,
+   "host_gap": 0.57701787774,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "66",
+   "move": "O2",
+   "truth_harm": 0.63964478441,
+   "host_gap": 0.5765481714,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "66",
+   "move": "M1",
+   "truth_harm": 0.63948888186,
+   "host_gap": 0.57717120671,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "66",
+   "move": "K4",
+   "truth_harm": 0.6396816962399999,
+   "host_gap": 0.5763784549000001,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "66",
+   "move": "O5",
+   "truth_harm": 0.64035343139,
+   "host_gap": 0.57771766284,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "68",
+   "move": "M2",
+   "truth_harm": 0.9205089439999999,
+   "host_gap": 0.7854262922,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "68",
+   "move": "M1",
+   "truth_harm": 0.9210272077999999,
+   "host_gap": 0.7844478146,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "68",
+   "move": "O6",
+   "truth_harm": 0.932000648259,
+   "host_gap": 0.808368492333,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "68",
+   "move": "P5",
+   "truth_harm": 0.932008142932,
+   "host_gap": 0.808318677171,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "68",
+   "move": "T5",
+   "truth_harm": 0.9210553475,
+   "host_gap": 0.78697319,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "68",
+   "move": "O2",
+   "truth_harm": 0.9217918621,
+   "host_gap": 0.7850007016,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "68",
+   "move": "K4",
+   "truth_harm": 0.9211822893,
+   "host_gap": 0.7812290336,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "item": "69",
+   "move": "M2",
+   "truth_harm": 0.8452022576,
+   "host_gap": 0.5821999453,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "M1",
+   "truth_harm": 0.8460393069,
+   "host_gap": 0.5809877682,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "O6",
+   "truth_harm": 0.8566902992077999,
+   "host_gap": 0.611929127603,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "P5",
+   "truth_harm": 0.8566891224029,
+   "host_gap": 0.611923120536,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "T5",
+   "truth_harm": 0.845155707,
+   "host_gap": 0.5836243217,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "S5",
+   "truth_harm": 0.8453089721,
+   "host_gap": 0.5833797792,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "O2",
+   "truth_harm": 0.84674138665,
+   "host_gap": 0.5792213205,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "item": "69",
+   "move": "K4",
+   "truth_harm": 0.845757235,
+   "host_gap": 0.5764826994,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  }
+ ],
+ "B_winner": [
+  {
+   "item": "0",
+   "host_winner_wr": 0.36282607099999997,
+   "truth_winner_wr": 0.043701487999999955,
+   "misjudge": true,
+   "truth_ok": false
+  },
+  {
+   "item": "1",
+   "host_winner_wr": 0.438017851,
+   "truth_winner_wr": 0.845651048,
+   "misjudge": true,
+   "truth_ok": true
+  },
+  {
+   "item": "2",
+   "host_winner_wr": 0.988880575,
+   "truth_winner_wr": 0.970306695,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "3",
+   "host_winner_wr": 0.778598311,
+   "truth_winner_wr": 0.09359657499999996,
+   "misjudge": false,
+   "truth_ok": false
+  },
+  {
+   "item": "4",
+   "host_winner_wr": 0.9165561104,
+   "truth_winner_wr": 0.9024767763,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "5",
+   "host_winner_wr": 0.33037351,
+   "truth_winner_wr": 0.0898533182,
+   "misjudge": true,
+   "truth_ok": false
+  },
+  {
+   "item": "6",
+   "host_winner_wr": 0.665739898,
+   "truth_winner_wr": 0.9797962551,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "7",
+   "host_winner_wr": 0.556596789,
+   "truth_winner_wr": 0.0237161886,
+   "misjudge": false,
+   "truth_ok": false
+  },
+  {
+   "item": "8",
+   "host_winner_wr": 0.502512007,
+   "truth_winner_wr": 0.912844103,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "9",
+   "host_winner_wr": 0.9895551246,
+   "truth_winner_wr": 0.9605003575,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "10",
+   "host_winner_wr": 0.116385319,
+   "truth_winner_wr": 0.192697301,
+   "misjudge": true,
+   "truth_ok": false
+  },
+  {
+   "item": "11",
+   "host_winner_wr": 0.9772078984,
+   "truth_winner_wr": 0.9583167137,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "12",
+   "host_winner_wr": 0.999468549,
+   "truth_winner_wr": 0.175300144,
+   "misjudge": false,
+   "truth_ok": false
+  },
+  {
+   "item": "13",
+   "host_winner_wr": 0.00021381399999997885,
+   "truth_winner_wr": 0.893598595,
+   "misjudge": true,
+   "truth_ok": true
+  },
+  {
+   "item": "41",
+   "host_winner_wr": 0.977443625,
+   "truth_winner_wr": 0.95927233,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "42",
+   "host_winner_wr": 0.9888757968,
+   "truth_winner_wr": 0.9934812306,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "43",
+   "host_winner_wr": 0.962264902,
+   "truth_winner_wr": 0.988409022,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "44",
+   "host_winner_wr": 0.848097445,
+   "truth_winner_wr": 0.967125701,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "45",
+   "host_winner_wr": 0.9687626375,
+   "truth_winner_wr": 0.9787274913,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "46",
+   "host_winner_wr": 0.967929379,
+   "truth_winner_wr": 0.993289754,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "47",
+   "host_winner_wr": 0.9866867261,
+   "truth_winner_wr": 0.9896251116,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "48",
+   "host_winner_wr": 0.99756798594,
+   "truth_winner_wr": 0.99897560747,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "49",
+   "host_winner_wr": 0.99539309795,
+   "truth_winner_wr": 0.99683195334,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "50",
+   "host_winner_wr": 0.689354655,
+   "truth_winner_wr": 0.925885662,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "51",
+   "host_winner_wr": 0.9374021692,
+   "truth_winner_wr": 0.964694482,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "52",
+   "host_winner_wr": 0.688734728,
+   "truth_winner_wr": 0.814933822,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "53",
+   "host_winner_wr": 0.896639656,
+   "truth_winner_wr": 0.9670230121,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "54",
+   "host_winner_wr": 0.820211698,
+   "truth_winner_wr": 0.860730433,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "55",
+   "host_winner_wr": 0.9879269379,
+   "truth_winner_wr": 0.99186035841,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "56",
+   "host_winner_wr": 0.9609913035,
+   "truth_winner_wr": 0.99494419615,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "57",
+   "host_winner_wr": 0.844633023,
+   "truth_winner_wr": 0.990263043,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "58",
+   "host_winner_wr": 0.9758912791,
+   "truth_winner_wr": 0.9968107367,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "59",
+   "host_winner_wr": 0.9672353766,
+   "truth_winner_wr": 0.9981919217,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "75",
+   "host_winner_wr": 0.973051993,
+   "truth_winner_wr": 0.994926263,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "76",
+   "host_winner_wr": 0.996577593,
+   "truth_winner_wr": 0.997645518,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "77",
+   "host_winner_wr": 0.997989428,
+   "truth_winner_wr": 0.998655515,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "78",
+   "host_winner_wr": 0.998092947,
+   "truth_winner_wr": 0.997544296,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "79",
+   "host_winner_wr": 0.999070727,
+   "truth_winner_wr": 0.999535114,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "80",
+   "host_winner_wr": 0.993276711,
+   "truth_winner_wr": 0.997773623,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "81",
+   "host_winner_wr": 0.992402705,
+   "truth_winner_wr": 0.997847579,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "82",
+   "host_winner_wr": 0.997949191,
+   "truth_winner_wr": 0.999570386,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "83",
+   "host_winner_wr": 0.997011053,
+   "truth_winner_wr": 0.998915689,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "84",
+   "host_winner_wr": 0.9957726,
+   "truth_winner_wr": 0.998964255,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "85",
+   "host_winner_wr": 0.994950495,
+   "truth_winner_wr": 0.998411534,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "86",
+   "host_winner_wr": 0.999256526,
+   "truth_winner_wr": 0.999575663,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "87",
+   "host_winner_wr": 0.998244076,
+   "truth_winner_wr": 0.998839996,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "88",
+   "host_winner_wr": 0.983277527,
+   "truth_winner_wr": 0.996176828,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "89",
+   "host_winner_wr": 0.988043798,
+   "truth_winner_wr": 0.997770373,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "90",
+   "host_winner_wr": 0.976520423,
+   "truth_winner_wr": 0.992398995,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "91",
+   "host_winner_wr": 0.993251648,
+   "truth_winner_wr": 0.997141203,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "92",
+   "host_winner_wr": 0.990325452,
+   "truth_winner_wr": 0.995267196,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "93",
+   "host_winner_wr": 0.987496431,
+   "truth_winner_wr": 0.992474582,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "94",
+   "host_winner_wr": 0.99865170943,
+   "truth_winner_wr": 0.999690744696,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "95",
+   "host_winner_wr": 0.99084719677,
+   "truth_winner_wr": 0.999313838479,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "96",
+   "host_winner_wr": 0.99690896656,
+   "truth_winner_wr": 0.999475280326,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "97",
+   "host_winner_wr": 0.99759288154,
+   "truth_winner_wr": 0.999886014976,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "98",
+   "host_winner_wr": 0.9611107424,
+   "truth_winner_wr": 0.9992521281,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "99",
+   "host_winner_wr": 0.971855127,
+   "truth_winner_wr": 0.999595459936,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "100",
+   "host_winner_wr": 0.9813958726,
+   "truth_winner_wr": 0.999671147253,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "101",
+   "host_winner_wr": 0.99842401256,
+   "truth_winner_wr": 0.9999172583619,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "102",
+   "host_winner_wr": 0.99255038395,
+   "truth_winner_wr": 0.999539113109,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "103",
+   "host_winner_wr": 0.99113366272,
+   "truth_winner_wr": 0.999283354602,
+   "misjudge": false,
+   "truth_ok": true
+  },
+  {
+   "item": "104",
+   "host_winner_wr": 0.9912996426,
+   "truth_winner_wr": 0.999739727598,
+   "misjudge": false,
+   "truth_ok": true
+  }
+ ],
+ "nat": [
+  {
+   "pos": "0",
+   "truth_harm": -0.12362745199999992,
+   "host_gap": -0.15830665099999996,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "pos": "1",
+   "truth_harm": 0.19365171400000003,
+   "host_gap": 0.12111643099999991,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": true
+   }
+  },
+  {
+   "pos": "2",
+   "truth_harm": 0.153650232,
+   "host_gap": -0.07553146899999996,
+   "harmful": true,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": true,
+    "b10": false
+   }
+  },
+  {
+   "pos": "3",
+   "truth_harm": -0.05869989099999995,
+   "host_gap": -0.131789477,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "4",
+   "truth_harm": -0.6585033604,
+   "host_gap": -0.49276830400000005,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "5",
+   "truth_harm": 0.42855105400000004,
+   "host_gap": 0.456912321,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": true
+   }
+  },
+  {
+   "pos": "6",
+   "truth_harm": -0.375867428,
+   "host_gap": -0.317606687,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "7",
+   "truth_harm": 0.43168739500000003,
+   "host_gap": 0.2902443290000001,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": true
+   }
+  },
+  {
+   "pos": "8",
+   "truth_harm": 0.44904879499999995,
+   "host_gap": 0.401274839,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": false
+   }
+  },
+  {
+   "pos": "9",
+   "truth_harm": 0.004557485400000005,
+   "host_gap": 0.01921726629999998,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "pos": "10",
+   "truth_harm": 0.0039850770000000035,
+   "host_gap": -0.425672185,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "11",
+   "truth_harm": 0.09011500699999997,
+   "host_gap": 0.07364823499999995,
+   "harmful": false,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": true
+   }
+  },
+  {
+   "pos": "12",
+   "truth_harm": 0.053258024000000015,
+   "host_gap": 0.04904479500000003,
+   "harmful": false,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "13",
+   "truth_harm": 0.04610650100000002,
+   "host_gap": -0.05771490300000004,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "14",
+   "truth_harm": 0.05734731500000001,
+   "host_gap": 0.029030529000000027,
+   "harmful": false,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": false,
+    "b10": true
+   }
+  },
+  {
+   "pos": "15",
+   "truth_harm": 0.217478847,
+   "host_gap": 0.216554127,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": true
+   }
+  },
+  {
+   "pos": "16",
+   "truth_harm": 0.22843311830000002,
+   "host_gap": 0.3560714319999999,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": false
+   }
+  },
+  {
+   "pos": "17",
+   "truth_harm": -0.015585461999999994,
+   "host_gap": -0.13009279899999993,
+   "harmful": false,
+   "invisible": true,
+   "catch": {
+    "b18e": false,
+    "b40": false,
+    "b10": false
+   }
+  },
+  {
+   "pos": "18",
+   "truth_harm": 0.16062625200000002,
+   "host_gap": 0.065518091,
+   "harmful": true,
+   "invisible": false,
+   "catch": {
+    "b18e": true,
+    "b40": true,
+    "b10": false
+   }
+  }
+ ],
+ "counts": {
+  "B": 2,
+  "nat": 1
+ },
+ "verdict": "不通过：每步 512 次访问下乙类材料不足（两条路线都没达到门槛）"
+}
